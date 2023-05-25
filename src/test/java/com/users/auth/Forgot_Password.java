@@ -109,7 +109,8 @@ public class Forgot_Password extends RequestSpec {
 
         String reqData = obj.toJSONString();
 
-        given().spec(requestSpec).body(reqData).when().put(baseURI+path).then().assertThat().statusCode(SC_NOT_FOUND).log().all().extract().response();
+        given().spec(requestSpec).body(reqData).when().put(baseURI+path).then().assertThat().
+                statusCode(SC_NOT_FOUND).log().all().extract().response();
         getTest().log(Status.PASS,"Test case to verify request for forget password with different HTTP method.");
     }
 }
