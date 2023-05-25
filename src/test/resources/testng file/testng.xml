@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All Test Suite">
+
+    <test verbose="2" preserve-order="true" name="Notes_API_TestCases">
+        <classes>
+
+            <class name="com.users.auth.Register"></class>
+            <class name="com.users.auth.Login"></class>
+            <class name="com.users.auth.Forgot_Password"></class>
+
+        </classes>
+    </test>
+</suite>
