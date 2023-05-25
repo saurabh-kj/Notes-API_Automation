@@ -143,7 +143,7 @@ public class Register extends RequestSpec {
     @DataProvider(name = "users")
     String[][] getFileData() throws Exception {
         //Read data from excel
-        String path = "./src/test/artifacts/users.xlsx";
+        String path = "./src/test/resources/testData/users.xlsx";
         int row_count = getRowCount(path, "Sheet1");
         int col_count = getCellCount(path, "Sheet1", 1);
 
