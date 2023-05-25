@@ -12,7 +12,7 @@ public class ExtentManager {
         reporter.config().setReportName("Automation Report");
         reporter.config().setTheme(Theme.DARK);
         extentReports.attachReporter(reporter);
-        extentReports.setSystemInfo("Author", "Saurabh");
+        extentReports.setSystemInfo("Author", "Saurabh Kumar");
         return extentReports;
     }
 }

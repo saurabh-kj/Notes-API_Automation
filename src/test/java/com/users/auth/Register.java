@@ -1,13 +1,15 @@
 package com.users.auth;
 
+import com.aventstack.extentreports.Status;
 import health_check.GET_HealthCheck;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.json.simple.JSONObject;
-import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 import utils.RequestSpec;
 
 import java.util.HashMap;
@@ -16,23 +18,28 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.*;
 import static utils.ExcelUtils.*;
+import static utils.extent.ExtentTestManager.getTest;
+
+@Listeners(utils.Listener.ListenerClass.class)
 
 public class Register extends RequestSpec {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(GET_HealthCheck.class);
     //    Properties prop;
     String path;
+    private SoftAssert sa;
 
     @BeforeMethod
     public void getSourcePath() {
+        sa = new SoftAssert();
         try {
             path = prop.getProperty("Register");
         } catch (Exception e) {
             logger.error("Exception found at source path: ", e);
-            Assert.fail("Exception found at source path: " + e.getMessage(), e);
+            sa.fail("Exception found at source path: " + e.getMessage(), e);
         }
     }
 
-    // TC_001 - User is registered successfully.
+    // TC - User is registered successfully.
     @Test(priority = 0)
     public void registerSuccess(){
         try{
@@ -48,26 +55,29 @@ public class Register extends RequestSpec {
             System.out.println("Request Body: " + reqBody);
 
             Response res = given().log().all().spec(requestSpec).body(reqBody).when().post(baseURI+path).then().log().all().extract().response();
-
+            getTest().log(Status.PASS, "Test Case to verify User is registered successfully.");
             String resBody = res.getBody().asString();
             System.out.println("Response Body: " + res.asPrettyString());
 
-            Assert.assertTrue(resBody.contains("User account created successfully"));
-            Assert.assertTrue(resBody.contains("user110@mailinator.com"));
-            Assert.assertTrue(resBody.contains("Test User 110"));
+            sa.assertTrue(resBody.contains("User account is created successfully."));
+            getTest().log(Status.PASS, "User account is created successfully.");
+            sa.assertTrue(resBody.contains("user110@mailinator.com"));
+            getTest().log(Status.PASS, "User email is found in response body.");
+            sa.assertTrue(resBody.contains("Test User 110"));
+            getTest().log(Status.PASS, "User's name is found in response body.");
 
 //          Print created user's id
             JsonPath jsonPath = res.jsonPath();
             String userID = jsonPath.get("data.id");
-            System.out.println("Created User's ID: " + userID);
+                System.out.println("Created User's ID: " + userID);
 
         }catch (Exception e) {
             logger.error("Exception found at source path: ", e);
-            Assert.fail("Exception found at source path: " + e.getMessage(), e);
+            sa.fail("Exception found at source path: " + e.getMessage(), e);
         }
     }
 
-    // TC_002 - Verify 409 error code while registering with existing user
+    // TC - Verify 409 error code while registering with existing user
     @Test(priority = 1)
     public void registerWithExistingUser(){
         try{
@@ -83,18 +93,21 @@ public class Register extends RequestSpec {
 
             Response res = given().log().all().spec(requestSpec).body(reqBody).when().post(baseURI+path).then().
                     assertThat().statusCode(SC_CONFLICT).log().all().extract().response();
+            getTest().log(Status.PASS, "Test Case to Verify 409 Error code while registering with existing user.");
 
             String resBody = res.getBody().asString();
 
-            Assert.assertTrue(resBody.contains("An account already exists with the same email address"));
-            Assert.assertTrue(resBody.contains("409"));
+            sa.assertTrue(resBody.contains("An account already exists with the same email address"));
+            getTest().log(Status.PASS, "Response body contains message as an account is already exists with input email id.");
+            sa.assertTrue(resBody.contains("409"));
+            getTest().log(Status.PASS, "Response body contains 409 error code.");
         }catch (Exception e) {
             logger.error("Exception found at source path: ", e);
-            Assert.fail("Exception found at source path: " + e.getMessage(), e);
+            sa.fail("Exception found at source path: " + e.getMessage(), e);
         }
     }
 
-    // TC_003 - Create bulk users successfully using XLSX file.
+    // TC - Create bulk users successfully using XLSX file.
     @Test(dataProvider = "users", priority = 2)
     public void createBulkUsers(String name, String email){
         try{
@@ -110,16 +123,20 @@ public class Register extends RequestSpec {
 
             Response res = given().log().all().spec(requestSpec).body(reqBody).when().post(baseURI+path).then().
                     assertThat().statusCode(SC_CREATED).log().all().extract().response();
+            getTest().log(Status.PASS, "Test Case to verify to create users in bulk.");
 
             String resBody = res.getBody().asString();
 
-            Assert.assertTrue(resBody.contains("User account created successfully"));
-            Assert.assertTrue(resBody.contains(name));
-            Assert.assertTrue(resBody.contains(email));
+            sa.assertTrue(resBody.contains("User account is created successfully."));
+            getTest().log(Status.PASS, "User account is created successfully.");
+            sa.assertTrue(resBody.contains(name));
+            getTest().log(Status.PASS, "Response body contains user's name.");
+            sa.assertTrue(resBody.contains(email));
+            getTest().log(Status.PASS, "Response body contains user's email.");
 
         }catch (Exception e) {
             logger.error("Exception found at source path: ", e);
-            Assert.fail("Exception found at source path: " + e.getMessage(), e);
+            sa.fail("Exception found at source path: " + e.getMessage(), e);
         }
     }
 
@@ -139,7 +156,7 @@ public class Register extends RequestSpec {
         return fileData;
     }
 
-    // TC_004 - Send request with empty name field
+    // TC - Send request with empty name field
     @Test(priority = 3)
     public void requiredNameField(){
         try{
@@ -155,14 +172,14 @@ public class Register extends RequestSpec {
 
             given().log().all().spec(requestSpec).body(reqBody).when().post(baseURI+path).then().
                     assertThat().statusCode(SC_BAD_REQUEST).log().all().extract().response();
-
+            getTest().log(Status.PASS, "Test case to verify 400 error while sending request with empty name field.");
         }catch (Exception e) {
             logger.error("Exception found at source path: ", e);
-            Assert.fail("Exception found at source path: " + e.getMessage(), e);
+            sa.fail("Exception found at source path: " + e.getMessage(), e);
         }
     }
 
-    // TC_005 - Send request with empty email field
+    // TC - Send request with empty email field
     @Test(priority = 3)
     public void requiredEmailField(){
         try{
@@ -178,15 +195,15 @@ public class Register extends RequestSpec {
 
             given().log().all().spec(requestSpec).body(reqBody).when().post(baseURI+path).then().
                     assertThat().statusCode(SC_BAD_REQUEST).log().all().extract().response();
-
+            getTest().log(Status.PASS, "Test case to verify 400 error while sending request with empty email field.");
         }catch (Exception e) {
             logger.error("Exception found at source path: ", e);
-            Assert.fail("Exception found at source path: " + e.getMessage(), e);
+            sa.fail("Exception found at source path: " + e.getMessage(), e);
         }
     }
 
-    // TC_006 - Send request with empty name field
-    @Test(priority = 3)
+    // TC - Send request with empty name field
+    @Test(priority = 4)
     public void requiredPasswordField(){
         try{
             Map<String, Object> map = new HashMap<>();
@@ -199,12 +216,12 @@ public class Register extends RequestSpec {
             String reqBody = obj.toJSONString();
             System.out.println("Request Body: " + reqBody);
 
-            Response res = given().log().all().spec(requestSpec).body(reqBody).when().post(baseURI+path).then().
+            given().log().all().spec(requestSpec).body(reqBody).when().post(baseURI+path).then().
                     assertThat().statusCode(SC_BAD_REQUEST).log().all().extract().response();
-
+            getTest().log(Status.PASS, "Test case to verify 400 error while sending request with empty password field.");
         }catch (Exception e) {
             logger.error("Exception found at source path: ", e);
-            Assert.fail("Exception found at source path: " + e.getMessage(), e);
+            sa.fail("Exception found at source path: " + e.getMessage(), e);
         }
     }
 
