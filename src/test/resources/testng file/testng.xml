@@ -5,10 +5,12 @@
     <test verbose="2" preserve-order="true" name="Notes_API_TestCases">
         <classes>
 
-            <class name="com.users.auth.Register"></class>
-            <class name="com.users.auth.Login"></class>
-            <class name="com.users.auth.Forgot_Password"></class>
-
+            <class name="com.users.auth.Register"/>
+            <class name="com.users.auth.Login"/>
+            <class name="com.users.auth.Forgot_Password"/>
+            <class name="health_check.GET_HealthCheck"/>
+            <class name="com.users.Notes.POST_CreateNote"/>
+            <class name="com.users.Notes.GET_FetchNotes"/>
         </classes>
     </test>
 </suite>

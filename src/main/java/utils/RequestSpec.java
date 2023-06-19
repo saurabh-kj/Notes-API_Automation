@@ -14,16 +14,12 @@ public class RequestSpec {
     public static Properties prop;
     public static String baseURI;
     public static RequestSpecification requestSpec;
-    static String cookie = "__stripe_mid=c0eb9fb3-a0ae-4e0a-8cff-f134271f811c29eed1; __stripe_sid=a94a8e24-8124-4cde-b8b4-042961bb822b01e247";
     @BeforeClass
     public void authSetup() {
         RequestSpecBuilder build = new RequestSpecBuilder();
         build.addHeader("accept", "application/json");
         build.addHeader("Content-Type", "application/json");
-        /*build.addHeader("Host","reqres.in");
-        build.addHeader("Origin", "https://reqres.in");
-        build.addHeader("Cookie", cookie);*/
-
+        build.addHeader("x-auth-token", "f6cba598a45f43d29662d1cc02b112b8ccf23574e64a4e03a3ca096193b33652");
         requestSpec = build.build();
     }
 
