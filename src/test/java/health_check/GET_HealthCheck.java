@@ -28,7 +28,6 @@ public class GET_HealthCheck extends RequestSpec {
     @Test
     public void healthCheck() {
         Response res = given().baseUri(baseURI).get(path).then().assertThat().statusCode(SC_OK).log().all().extract().response();
-
         String resBody = res.getBody().asString();
 
         //Assert the data
