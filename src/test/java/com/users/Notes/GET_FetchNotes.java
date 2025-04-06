@@ -77,8 +77,6 @@ public class GET_FetchNotes extends RequestSpec {
         given().header("accept", "application/json").
                 header("Content-Type", "application/json").
                 when().post(baseURI+path).then().assertThat().statusCode(SC_UNAUTHORIZED).log().all().extract().response();
-        getTest().log(Status.PASS, "Test case to check 401 error code")
-
+        getTest().log(Status.PASS, "Test case to check 401 error code");
     }
-
 }
