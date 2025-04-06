@@ -1,0 +1,70 @@
+name: Run Modified Test Cases
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop  # Add more if needed
+
+jobs:
+  compile-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Compile the Project
+        id: compile
+        run: |
+          echo "🛠 Running mvn compile..."
+          mvn compile | tee compile_output.log
+        continue-on-error: true  # Let it run even on failure so we can show the error
+
+      - name: Check Compile Status
+        if: steps.compile.outcome != 'success'
+        run: |
+          echo "❌ mvn compile failed. Here's why:"
+          echo "----------------------------------"
+          cat compile_output.log | tail -n 100  # Show last 100 lines (adjust if needed)
+          echo "----------------------------------"
+          exit 1
+
+      - name: Get Modified Test Files
+        if: steps.compile.outcome == 'success'
+        id: get-tests
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          MODIFIED_FILES=$(git diff --name-only origin/${{ github.base_ref }} | grep '^src/test/java/' || echo "")
+          MODIFIED_CLASSES=$(echo "$MODIFIED_FILES" \
+            | grep -E '^src/test/java/.*Test_.*\.java$' \
+            | sed 's|^src/test/java/||' \
+            | sed 's|/|.|g' \
+            | sed 's|.java$||' \
+            | paste -sd "," -)
+          echo "MODIFIED_CLASSES=$MODIFIED_CLASSES" >> $GITHUB_ENV
+
+      - name: Run Modified Test Cases
+        if: env.MODIFIED_CLASSES != ''
+        run: |
+          echo "🧪 Running modified test classes: $MODIFIED_CLASSES"
+          mvn test -Dtest="$MODIFIED_CLASSES"
+
+      - name: Archive Extent Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: extent-report
+          path: target/extent-reports/
+
+      - name: Fail PR if Tests Fail
+        if: failure()
+        run: |
+          echo "❌ Tests failed or errors detected. Check Extent Report for details."
+          exit 1
