@@ -32,6 +32,6 @@ public class GET_HealthCheck extends RequestSpec {
         String resBody = res.getBody().asString();
 
         //Assert the data
-        Assert.assertTrue(resBody.contains("Notes API is Running"))
+        Assert.assertTrue(resBody.contains("Notes API is Running"));
     }
 }
