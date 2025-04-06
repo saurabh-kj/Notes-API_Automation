@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-      - develop  # Add more if needed
+      - master  # Add more if needed
 
 jobs:
   compile-and-test:
