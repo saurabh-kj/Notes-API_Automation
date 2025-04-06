@@ -3,8 +3,8 @@ name: Run Modified Test Cases
 on:
   pull_request:
     branches:
-      - main
-      - master  # Add more if needed
+      - master
+      - main  # Add more if needed
 
 jobs:
   compile-and-test:
